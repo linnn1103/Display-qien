@@ -47,7 +47,6 @@ public class DisplayQien implements ModInitializer {
 				Rarity rarity = itemInHand.getItem().getRarity(itemInHand);
 				MutableText itemText;
 				itemText = (MutableText) createItemText(itemInHand, player, rarity);
-				//發送物品資訊給玩家
 				player.sendMessage(itemText,false);
 				return 1;
 			})));
