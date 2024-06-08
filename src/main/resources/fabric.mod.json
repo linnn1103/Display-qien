@@ -1,0 +1,34 @@
+{
+	"schemaVersion": 1,
+	"id": "display-qien",
+	"version": "${version}",
+	"name": "Display-Qien",
+	"description": "你可以展示啟恩",
+	"authors": [
+		"Linn"
+	],
+	"contact": {
+		"homepage": "https://fabricmc.net/",
+		"sources": "https://github.com/FabricMC/fabric-example-mod"
+	},
+	"license": "MIT",
+	"icon": "assets/display-qien/icon.png",
+	"environment": "server",
+	"entrypoints": {
+		"main": [
+			"com.qien.DisplayQien"
+		]
+	},
+	"mixins": [
+		"display-qien.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.15.11",
+		"minecraft": "~1.20.4",
+		"java": ">=17",
+		"fabric-api": "*"
+	},
+	"suggests": {
+		"another-mod": "*"
+	}
+}
