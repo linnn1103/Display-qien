@@ -1,10 +1,8 @@
 package com.qien;
 
+import static net.minecraft.server.command.CommandManager.*;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
-import static net.minecraft.server.command.CommandManager.*;
-
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.HoverEvent;
@@ -12,13 +10,15 @@ import net.minecraft.text.MutableText;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.util.Rarity;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.qien.Listener.ModeEvent;
 
 public class DisplayQien implements ModInitializer {
     public static final Logger LOGGER = LoggerFactory.getLogger("display-qien");
-	private Text createItemText(ItemStack itemInHand, ServerPlayerEntity player, Rarity rarity) {
+	public static Text createItemText(ServerPlayerEntity player) {
+		ItemStack itemInHand = player.getMainHandStack();
+		Rarity rarity = itemInHand.getItem().getRarity(itemInHand);
 		MutableText baseText = itemInHand.hasCustomName() ? 
 			Text.literal(itemInHand.getName().getString()) : 
 			Text.translatable(itemInHand.getItem().getTranslationKey());
@@ -31,25 +31,34 @@ public class DisplayQien implements ModInitializer {
 			itemText = itemText.append(Text.literal("x" + itemInHand.getCount()));
 		}
 	
-
 		return itemText.append("]");
 	}
-
-	@Override
-	public void onInitialize() {
-		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> dispatcher.register(literal("displayitem")
-			.executes(context -> {
-				ServerPlayerEntity player = context.getSource().getPlayer();
+	public static int sendItemText(ServerPlayerEntity player){
 				ItemStack itemInHand = player.getMainHandStack();
 				if (itemInHand.isEmpty()) {
 					return 0; 
 				}
-				Rarity rarity = itemInHand.getItem().getRarity(itemInHand);
 				MutableText itemText;
-				itemText = (MutableText) createItemText(itemInHand, player, rarity);
-				player.sendMessage(itemText,false);
+				itemText = (MutableText) createItemText(player);
+				// player.sendMessage(itemText,false);
+				player.getServer().getPlayerManager().broadcast(itemText,false);
+				return 1;
+	}
+
+	@Override
+	public void onInitialize() {
+		ModeEvent.registerEvents();
+		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> dispatcher.register(literal("displayItem")
+			.executes(context -> {
+				sendItemText(context.getSource().getPlayer());
+				return 1;
+			})));
+		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> dispatcher.register(literal("displayReload")
+			.executes(context -> {
+				ModeEvent.registerEvents();
 				return 1;
 			})));
 		LOGGER.info("Display-Qien is on!");
 	}
+
 }
